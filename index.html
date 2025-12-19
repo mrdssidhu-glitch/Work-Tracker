@@ -2,11 +2,51 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Work Tracker Pro</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Work Tracker">
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1a73e8">
+
+    <link rel="manifest" href='data:application/manifest+json,{
+        "name": "Work Tracker Pro",
+        "short_name": "Tracker",
+        "start_url": ".",
+        "display": "standalone",
+        "background_color": "#f0f2f5",
+        "theme_color": "#1a73e8",
+        "icons": [{
+            "src": "https://cdn-icons-png.flaticon.com/512/2910/2910768.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        }]
+    }'>
+
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2910/2910768.png">
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2910/2910768.png">
+
     <style>
-        body { font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 1rem; background-color: #f0f2f5; }
+        /* Prevent text selection and rubber-banding for app-like feel */
+        body { 
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            max-width: 600px; 
+            margin: 0 auto; 
+            padding: 1rem; 
+            background-color: #f0f2f5;
+            -webkit-user-select: none; /* iOS Safari */
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
         
+        /* Adjust for iPhone Notch/Status Bar if needed */
+        @supports (-webkit-touch-callout: none) {
+            body { padding-top: env(safe-area-inset-top); }
+        }
+
         /* Login Screen */
         #login-screen { display: flex; flex-direction: column; height: 80vh; justify-content: center; align-items: center; }
         .user-card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; text-align: center; }
@@ -21,9 +61,9 @@
         
         button { width: 100%; padding: 1rem; margin-top: 10px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-primary { background-color: #1a73e8; color: white; }
-        .btn-primary:hover { background-color: #1557b0; }
+        .btn-primary:active { transform: scale(0.98); } /* Click effect */
         .btn-user { background: white; border: 2px solid #eee; color: #333; margin-bottom: 10px; }
-        .btn-user:hover { border-color: #1a73e8; color: #1a73e8; }
+        .btn-user:active { border-color: #1a73e8; background: #e8f0fe; }
 
         /* Total Box Style */
         .total-card {
@@ -90,7 +130,6 @@
     </div>
 
 <script>
-    // YOUR LINK IS PRE-FILLED HERE:
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxWV7i1651NukyWFdOLxielbqAfLgWAED31rPIxbZS0yBPMjpIaAYH6p6pLvnBbSBME/exec"; 
 
     let currentUser = "";
@@ -101,21 +140,16 @@
         document.getElementById('displayUser').innerText = name;
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app-screen').style.display = 'block';
-        
-        // Fetch the total immediately when logging in
         fetchTotalHours();
     }
 
-    // New Function to GET total hours
     function fetchTotalHours() {
         const display = document.getElementById('totalDisplay');
         display.innerText = "...";
-        
-        // Standard Fetch for GET (reading data)
         fetch(`${SCRIPT_URL}?name=${currentUser}`)
         .then(response => response.text())
         .then(data => {
-            display.innerText = data; // Update the big number
+            display.innerText = data; 
         })
         .catch(error => {
             console.error(error);
@@ -137,7 +171,6 @@
             return;
         }
 
-        // Calculate Hours
         const s = new Date(`1970-01-01T${start}Z`);
         const e = new Date(`1970-01-01T${end}Z`);
         let diff = (e - s) / 36e5;
@@ -148,14 +181,12 @@
         }
         const totalHours = diff.toFixed(2);
 
-        // UI Loading State
         btn.disabled = true;
         btn.style.opacity = "0.6";
         loader.style.display = "block";
         status.innerText = "Saving...";
         status.style.color = "#666";
 
-        // Send to Google Script
         const fullUrl = `${SCRIPT_URL}?name=${currentUser}&date=${date}&start=${start}&end=${end}&hours=${totalHours}`;
 
         fetch(fullUrl, { method: "POST", mode: "no-cors" })
@@ -166,7 +197,6 @@
             status.innerText = "✅ Saved successfully!";
             status.style.color = "green";
             
-            // Wait 1.5 seconds, then update the total
             setTimeout(() => {
                 fetchTotalHours();
             }, 1500);
