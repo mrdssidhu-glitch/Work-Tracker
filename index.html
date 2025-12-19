@@ -12,96 +12,90 @@
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2910/2910768.png">
 
     <style>
+        /* RESET & BASE STYLES */
+        * { box-sizing: border-box; }
+        
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            max-width: 600px; margin: 0 auto; padding: 1rem; 
             background-color: #f0f2f5;
-            padding-bottom: 80px; /* Space for bottom banner */
+            padding: 1rem;
+            padding-bottom: 80px; /* Space for banner */
+            margin: 0;
+            width: 100%;
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* --- FIXED BOTTOM BANNER (Won't block top buttons) --- */
-        #install-banner {
-            display: none; 
-            position: fixed; 
-            bottom: 0; left: 0; width: 100%;
-            background-color: #222; 
-            color: white; 
-            padding: 15px;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.2); 
-            z-index: 9999;
-            align-items: center; 
-            justify-content: space-between; 
-            box-sizing: border-box;
-        }
-        #install-btn { background: #1a73e8; color: white; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; margin-left: 10px; }
-        #close-install { background: none; border: none; color: #aaa; font-size: 1.5rem; margin-left: 15px; padding: 0 10px; }
+        /* CENTER CONTENT */
+        .main-wrapper { max-width: 600px; margin: 0 auto; width: 100%; }
 
         /* --- LOGIN SCREEN --- */
         #login-screen { 
-            display: flex; 
-            flex-direction: column; 
-            min-height: 80vh; 
-            justify-content: center; 
-            align-items: center; 
-            position: relative;
-            z-index: 1; /* Ensures buttons are clickable */
+            display: flex; flex-direction: column; min-height: 80vh; 
+            justify-content: center; align-items: center; width: 100%;
         }
         .user-card { 
-            background: white; 
-            padding: 2rem; 
-            border-radius: 12px; 
-            width: 100%; 
-            text-align: center; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+            background: white; padding: 2rem; border-radius: 12px; 
+            width: 100%; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
         }
 
         /* --- APP SCREEN --- */
-        #app-screen { display: none; }
-        .container { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        #app-screen { display: none; width: 100%; }
+        .container { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; }
         
-        .input-group { margin-bottom: 1rem; }
+        .input-group { margin-bottom: 1rem; width: 100%; }
         label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #444; }
-        input { width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        input { width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; display: block; }
         
         button { cursor: pointer; }
         .btn-primary { width: 100%; padding: 1rem; margin-top: 10px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; background-color: #1a73e8; color: white; }
         .btn-user { width: 100%; padding: 1rem; margin-bottom: 10px; border: 2px solid #eee; background: white; border-radius: 8px; font-size: 1rem; color: #333; position: relative; z-index: 10; }
         
         .total-card { background: linear-gradient(135deg, #1a73e8, #0d47a1); color: white; padding: 1.5rem; border-radius: 12px; text-align: center; margin-bottom: 1.5rem; }
+
+        /* --- BOTTOM BANNER --- */
+        #install-banner {
+            display: none; position: fixed; bottom: 0; left: 0; right: 0;
+            background-color: #222; color: white; padding: 15px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2); z-index: 9999;
+            align-items: center; justify-content: space-between; 
+        }
+        #install-btn { background: #1a73e8; color: white; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; margin-left: 10px; }
+        #close-install { background: none; border: none; color: #aaa; font-size: 1.5rem; margin-left: 15px; padding: 0 10px; }
     </style>
 </head>
 <body>
 
-    <div id="login-screen">
-        <div class="user-card">
-            <h2 style="color: #1a73e8;">Work Tracker</h2>
-            <p>Select User:</p>
-            <button class="btn-user" onclick="login('Darsh')">👤 Darsh</button>
-            <button class="btn-user" onclick="login('Kamal')">👤 Kamal</button>
+    <div class="main-wrapper">
+        <div id="login-screen">
+            <div class="user-card">
+                <h2 style="color: #1a73e8;">Work Tracker</h2>
+                <p>Select User:</p>
+                <button class="btn-user" onclick="login('Darsh')">👤 Darsh</button>
+                <button class="btn-user" onclick="login('Kamal')">👤 Kamal</button>
+            </div>
         </div>
-    </div>
 
-    <div id="app-screen">
-        <div class="container">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-                <h3 style="margin:0;">Hi, <span id="displayUser" style="color:#1a73e8;"></span> 👋</h3>
-                <small onclick="location.reload()" style="color:red;">Logout</small>
+        <div id="app-screen">
+            <div class="container">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                    <h3 style="margin:0;">Hi, <span id="displayUser" style="color:#1a73e8;"></span> 👋</h3>
+                    <small onclick="location.reload()" style="color:red;">Logout</small>
+                </div>
+
+                <div class="total-card">
+                    <div>TOTAL HOURS</div>
+                    <div id="totalDisplay" style="font-size:2.5rem; font-weight:bold;">...</div>
+                </div>
+
+                <div class="input-group"><label>Date</label><input type="date" id="dateInput"></div>
+                <div style="display:flex; gap:10px;">
+                    <div class="input-group" style="flex:1;"><label>Start</label><input type="time" id="startTime"></div>
+                    <div class="input-group" style="flex:1;"><label>End</label><input type="time" id="endTime"></div>
+                </div>
+
+                <button class="btn-primary" onclick="sendData()">Save & Update 📤</button>
+                <p id="statusMsg" style="text-align:center; margin-top:10px;"></p>
             </div>
-
-            <div class="total-card">
-                <div>TOTAL HOURS</div>
-                <div id="totalDisplay" style="font-size:2.5rem; font-weight:bold;">...</div>
-            </div>
-
-            <div class="input-group"><label>Date</label><input type="date" id="dateInput"></div>
-            <div style="display:flex; gap:10px;">
-                <div class="input-group" style="flex:1;"><label>Start</label><input type="time" id="startTime"></div>
-                <div class="input-group" style="flex:1;"><label>End</label><input type="time" id="endTime"></div>
-            </div>
-
-            <button class="btn-primary" onclick="sendData()">Save & Update 📤</button>
-            <p id="statusMsg" style="text-align:center; margin-top:10px;"></p>
         </div>
     </div>
 
@@ -112,7 +106,9 @@
     </div>
 
 <script>
+    // ✅ NEW LINK UPDATED HERE
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxWV7i1651NukyWFdOLxielbqAfLgWAED31rPIxbZS0yBPMjpIaAYH6p6pLvnBbSBME/exec"; 
+    
     let currentUser = "";
     document.getElementById('dateInput').valueAsDate = new Date();
 
@@ -158,14 +154,12 @@
         });
     }
 
-    // --- INSTALL BANNER LOGIC ---
-    // Wrapped in try-catch so it NEVER stops the app from working
+    // Install Banner Logic
     try {
         const banner = document.getElementById('install-banner');
         const installBtn = document.getElementById('install-btn');
         let deferredPrompt;
 
-        // Android Logic
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
@@ -180,7 +174,6 @@
             }
         });
         
-        // iOS Logic
         const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
         if(isIos && !isStandalone) {
