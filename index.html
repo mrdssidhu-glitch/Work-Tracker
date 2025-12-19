@@ -28,9 +28,9 @@
             top: 0; left: 0; width: 100%;
             background-color: #333;
             color: white;
-            padding: 15px;
+            padding: 12px 15px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            z-index: 9999;
+            z-index: 10000; /* Ensure it is on top */
             align-items: center;
             justify-content: space-between;
             box-sizing: border-box;
@@ -38,18 +38,21 @@
         #install-banner p { margin: 0; font-size: 0.9rem; flex: 1; }
         #install-btn {
             background: #1a73e8; color: white; border: none;
-            padding: 8px 15px; border-radius: 20px; font-weight: bold;
-            margin-left: 10px; cursor: pointer;
+            padding: 6px 12px; border-radius: 20px; font-weight: bold;
+            margin-left: 10px; cursor: pointer; font-size: 0.85rem;
         }
         #close-install {
             background: none; border: none; color: #aaa; font-size: 1.5rem;
-            margin-left: 10px; cursor: pointer;
+            margin-left: 10px; cursor: pointer; line-height: 1;
         }
         
         /* Main UI Styles */
         #login-screen { display: flex; flex-direction: column; height: 80vh; justify-content: center; align-items: center; }
         .user-card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; text-align: center; }
-        #app-screen { display: none; margin-top: 50px; /* Space for banner */ }
+        
+        /* App Screen - Hidden initially */
+        #app-screen { display: none; margin-top: 20px; }
+        
         .container { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .input-group { margin-bottom: 1rem; }
         label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #444; }
@@ -67,7 +70,7 @@
 
     <div id="install-banner">
         <div id="android-msg" style="display:none;">
-            <p>Install <b>Work Tracker</b> for easier access!</p>
+            <p>Install App for easier access!</p>
         </div>
         <div id="ios-msg" style="display:none;">
             <p>To install: Tap Share <span style="font-size:1.2rem;">⎋</span> then "Add to Home Screen" ➕</p>
@@ -109,64 +112,14 @@
     </div>
 
 <script>
+    // 1. CONFIGURATION
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxWV7i1651NukyWFdOLxielbqAfLgWAED31rPIxbZS0yBPMjpIaAYH6p6pLvnBbSBME/exec"; 
     let currentUser = "";
     document.getElementById('dateInput').valueAsDate = new Date();
 
-    // ==========================================
-    // 📲 INSTALL LOGIC (ANDROID & iOS)
-    // ==========================================
-    let deferredPrompt;
-    const banner = document.getElementById('install-banner');
-    const installBtn = document.getElementById('install-btn');
-    const androidMsg = document.getElementById('android-msg');
-    const iosMsg = document.getElementById('ios-msg');
-
-    // 1. Check if user is on iPhone/iPad (iOS)
-    const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
-    // Check if already installed (Standalone mode)
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-
-    // 2. Logic for Android
-    window.addEventListener('beforeinstallprompt', (e) => {
-        // Prevent Chrome 67 and earlier from automatically showing the prompt
-        e.preventDefault();
-        // Stash the event so it can be triggered later.
-        deferredPrompt = e;
-        // Show the banner
-        if (!isStandalone) {
-            banner.style.display = 'flex';
-            androidMsg.style.display = 'block';
-            installBtn.style.display = 'block';
-        }
-    });
-
-    // 3. Logic for iOS (Show banner with instructions)
-    if (isIos && !isStandalone) {
-        banner.style.display = 'flex';
-        iosMsg.style.display = 'block';
-        installBtn.style.display = 'none'; // iOS doesn't support a button install
-    }
-
-    // 4. Button Click Action (Android only)
-    installBtn.addEventListener('click', async () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            console.log(`User response to the install prompt: ${outcome}`);
-            deferredPrompt = null;
-            banner.style.display = 'none';
-        }
-    });
-
-    function closeBanner() {
-        banner.style.display = 'none';
-    }
-
-    // ==========================================
-    // APP LOGIC
-    // ==========================================
+    // 2. CORE APP FUNCTIONS (These load first so the app always works)
     function login(name) {
+        console.log("Logging in as: " + name); // Debug check
         currentUser = name;
         document.getElementById('displayUser').innerText = name;
         document.getElementById('login-screen').style.display = 'none';
@@ -196,3 +149,56 @@
         fetch(fullUrl, { method: "POST", mode: "no-cors" })
         .then(() => {
             loader.style.display = "none";
+            status.innerText = "✅ Saved!";
+            status.style.color = "green";
+            setTimeout(fetchTotalHours, 1500);
+        });
+    }
+
+    // 3. INSTALL BANNER LOGIC (Placed at bottom inside try-catch to prevent crashes)
+    function closeBanner() {
+        document.getElementById('install-banner').style.display = 'none';
+    }
+
+    try {
+        let deferredPrompt;
+        const banner = document.getElementById('install-banner');
+        const installBtn = document.getElementById('install-btn');
+        const androidMsg = document.getElementById('android-msg');
+        const iosMsg = document.getElementById('ios-msg');
+
+        const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+        // Only run if NOT already installed
+        if (!isStandalone) {
+            if (isIos) {
+                // iOS Logic
+                banner.style.display = 'flex';
+                iosMsg.style.display = 'block';
+            } else {
+                // Android Logic
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    deferredPrompt = e;
+                    banner.style.display = 'flex';
+                    androidMsg.style.display = 'block';
+                    installBtn.style.display = 'block';
+                });
+
+                installBtn.addEventListener('click', async () => {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
+                        deferredPrompt = null;
+                        banner.style.display = 'none';
+                    }
+                });
+            }
+        }
+    } catch (err) {
+        console.log("Install banner error (ignored):", err);
+    }
+</script>
+</body>
+</html>
