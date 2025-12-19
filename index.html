@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Work Tracker (Connected)</title>
+    <title>Work Tracker Pro</title>
     <style>
         body { font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 1rem; background-color: #f0f2f5; }
         
@@ -24,6 +24,19 @@
         .btn-primary:hover { background-color: #1557b0; }
         .btn-user { background: white; border: 2px solid #eee; color: #333; margin-bottom: 10px; }
         .btn-user:hover { border-color: #1a73e8; color: #1a73e8; }
+
+        /* Total Box Style */
+        .total-card {
+            background: linear-gradient(135deg, #1a73e8, #0d47a1);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 10px rgba(26, 115, 232, 0.3);
+        }
+        .total-number { font-size: 2.5rem; font-weight: bold; }
+        .total-label { font-size: 0.9rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px; }
 
         .loader { display: none; margin: 10px auto; border: 4px solid #f3f3f3; border-top: 4px solid #1a73e8; border-radius: 50%; width: 25px; height: 25px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -47,6 +60,12 @@
                 <small onclick="location.reload()" style="color:red; cursor:pointer;">Logout</small>
             </div>
 
+            <div class="total-card">
+                <div class="total-label">Total Hours Worked</div>
+                <div id="totalDisplay" class="total-number">...</div>
+                <div style="font-size: 0.8rem; margin-top: 5px;">(Calculated from Sheet)</div>
+            </div>
+
             <div class="input-group">
                 <label>Date</label>
                 <input type="date" id="dateInput">
@@ -63,7 +82,7 @@
                 </div>
             </div>
 
-            <button class="btn-primary" onclick="sendData()">Save to Sheet 📤</button>
+            <button class="btn-primary" onclick="sendData()">Save & Update 📤</button>
             
             <div id="loading" class="loader"></div>
             <p id="statusMsg" style="text-align:center; font-size: 0.9rem; margin-top: 10px; min-height: 20px;"></p>
@@ -71,11 +90,8 @@
     </div>
 
 <script>
-    // ==========================================
-    // YOUR LINK IS CONFIGURED HERE:
-    // ==========================================
+    // YOUR LINK IS PRE-FILLED HERE:
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxWV7i1651NukyWFdOLxielbqAfLgWAED31rPIxbZS0yBPMjpIaAYH6p6pLvnBbSBME/exec"; 
-    // ==========================================
 
     let currentUser = "";
     document.getElementById('dateInput').valueAsDate = new Date();
@@ -85,6 +101,26 @@
         document.getElementById('displayUser').innerText = name;
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app-screen').style.display = 'block';
+        
+        // Fetch the total immediately when logging in
+        fetchTotalHours();
+    }
+
+    // New Function to GET total hours
+    function fetchTotalHours() {
+        const display = document.getElementById('totalDisplay');
+        display.innerText = "...";
+        
+        // Standard Fetch for GET (reading data)
+        fetch(`${SCRIPT_URL}?name=${currentUser}`)
+        .then(response => response.text())
+        .then(data => {
+            display.innerText = data; // Update the big number
+        })
+        .catch(error => {
+            console.error(error);
+            display.innerText = "Error";
+        });
     }
 
     function sendData() {
@@ -116,7 +152,7 @@
         btn.disabled = true;
         btn.style.opacity = "0.6";
         loader.style.display = "block";
-        status.innerText = "Saving to Google Sheet...";
+        status.innerText = "Saving...";
         status.style.color = "#666";
 
         // Send to Google Script
@@ -129,6 +165,11 @@
             btn.style.opacity = "1";
             status.innerText = "✅ Saved successfully!";
             status.style.color = "green";
+            
+            // Wait 1.5 seconds, then update the total
+            setTimeout(() => {
+                fetchTotalHours();
+            }, 1500);
         })
         .catch(error => {
             console.error('Error:', error);
