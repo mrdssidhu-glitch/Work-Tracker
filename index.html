@@ -3,223 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Work Tracker (Fixed)</title>
+    <title>Work Tracker (Connected)</title>
     <style>
-        body { font-family: -apple-system, system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 1rem; background-color: #f4f6f8; }
+        body { font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 1rem; background-color: #f0f2f5; }
         
-        /* Login Styles */
+        /* Login Screen */
         #login-screen { display: flex; flex-direction: column; height: 80vh; justify-content: center; align-items: center; }
-        .user-card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; text-align: center; }
-        .btn-user { width: 100%; padding: 1rem; margin: 8px 0; border: 2px solid #e0e0e0; border-radius: 10px; background: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
-        .btn-user:hover { border-color: #007bff; color: #007bff; background: #f0f7ff; }
-
-        /* Main App Styles */
+        .user-card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; text-align: center; }
+        
+        /* Main App */
         #app-screen { display: none; }
-        .container { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .container { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         
         .input-group { margin-bottom: 1rem; }
-        label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; color: #555; }
-        input { width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #444; }
+        input { width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         
-        .add-btn { width: 100%; padding: 1rem; background-color: #007bff; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        
-        /* Table & History */
-        table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
-        th { text-align: left; padding: 10px; border-bottom: 2px solid #eee; color: #666; font-size: 0.9rem; }
-        td { padding: 12px 10px; border-bottom: 1px solid #eee; vertical-align: middle; }
-        
-        .total-box { margin-top: 20px; padding: 15px; background: #e3f2fd; color: #0d47a1; text-align: center; border-radius: 8px; font-weight: bold; font-size: 1.2rem; }
-        .delete-btn { color: #ff4444; border: 1px solid #ff4444; background: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+        button { width: 100%; padding: 1rem; margin-top: 10px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-primary { background-color: #1a73e8; color: white; }
+        .btn-primary:hover { background-color: #1557b0; }
+        .btn-user { background: white; border: 2px solid #eee; color: #333; margin-bottom: 10px; }
+        .btn-user:hover { border-color: #1a73e8; color: #1a73e8; }
+
+        .loader { display: none; margin: 10px auto; border: 4px solid #f3f3f3; border-top: 4px solid #1a73e8; border-radius: 50%; width: 25px; height: 25px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="user-card">
-            <h2 style="color: #007bff; margin-top:0;">Work Tracker</h2>
-            <p style="color: #666; margin-bottom: 20px;">Who is logging in?</p>
-            <button type="button" class="btn-user" onclick="login('Darsh')">👤 Darsh</button>
-            <button type="button" class="btn-user" onclick="login('Kamal')">👤 Kamal</button>
+            <h2 style="color: #1a73e8; margin-top: 0;">Work Tracker</h2>
+            <p style="color: #666; margin-bottom: 20px;">Select User</p>
+            <button class="btn-user" onclick="login('Darsh')">👤 Darsh</button>
+            <button class="btn-user" onclick="login('Kamal')">👤 Kamal</button>
         </div>
     </div>
 
     <div id="app-screen">
         <div class="container">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 style="margin:0;">Hi, <span id="displayUser" style="color:#007bff;"></span></h3>
-                <span onclick="location.reload()" style="color:#666; font-size:0.9rem; text-decoration:underline; cursor:pointer;">Logout</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                <h3 style="margin:0;">Hi, <span id="displayUser" style="color:#1a73e8;"></span> 👋</h3>
+                <small onclick="location.reload()" style="color:red; cursor:pointer;">Logout</small>
             </div>
 
             <div class="input-group">
                 <label>Date</label>
                 <input type="date" id="dateInput">
             </div>
+
             <div style="display: flex; gap: 10px;">
                 <div class="input-group" style="flex: 1;">
-                    <label>Start</label>
+                    <label>Start Time</label>
                     <input type="time" id="startTime">
                 </div>
                 <div class="input-group" style="flex: 1;">
-                    <label>Finish</label>
+                    <label>End Time</label>
                     <input type="time" id="endTime">
                 </div>
             </div>
 
-            <button type="button" class="add-btn" onclick="addEntry()">Add Entry</button>
-
-            <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center;">
-                <strong>History</strong>
-                <input type="month" id="monthFilter" onchange="renderTable()" style="width: auto; padding: 5px;">
-            </div>
-
-            <table style="margin-bottom: 20px;">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Hours</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
-
-            <div class="total-box">
-                Total: <span id="totalHours">0.00</span> Hrs
-            </div>
+            <button class="btn-primary" onclick="sendData()">Save to Sheet 📤</button>
+            
+            <div id="loading" class="loader"></div>
+            <p id="statusMsg" style="text-align:center; font-size: 0.9rem; margin-top: 10px; min-height: 20px;"></p>
         </div>
     </div>
 
 <script>
-    let currentUser = "";
+    // ==========================================
+    // YOUR LINK IS CONFIGURED HERE:
+    // ==========================================
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxWV7i1651NukyWFdOLxielbqAfLgWAED31rPIxbZS0yBPMjpIaAYH6p6pLvnBbSBME/exec"; 
+    // ==========================================
 
-    // Run this safely when the page loads
-    window.addEventListener('DOMContentLoaded', (event) => {
-        try {
-            const today = new Date();
-            document.getElementById('dateInput').valueAsDate = today;
-            // Handle month format safely
-            const monthStr = today.toISOString().slice(0, 7); 
-            document.getElementById('monthFilter').value = monthStr;
-        } catch (e) {
-            console.log("Date init error (harmless): " + e);
-        }
-    });
+    let currentUser = "";
+    document.getElementById('dateInput').valueAsDate = new Date();
 
     function login(name) {
-        try {
-            currentUser = name;
-            document.getElementById('displayUser').innerText = name;
-            
-            // Switch Screens
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('app-screen').style.display = 'block';
-            
-            renderTable();
-        } catch (error) {
-            alert("Error logging in: " + error.message);
-        }
+        currentUser = name;
+        document.getElementById('displayUser').innerText = name;
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app-screen').style.display = 'block';
     }
 
-    function addEntry() {
-        try {
-            const date = document.getElementById('dateInput').value;
-            const start = document.getElementById('startTime').value;
-            const end = document.getElementById('endTime').value;
+    function sendData() {
+        const date = document.getElementById('dateInput').value;
+        const start = document.getElementById('startTime').value;
+        const end = document.getElementById('endTime').value;
+        const status = document.getElementById('statusMsg');
+        const loader = document.getElementById('loading');
+        const btn = document.querySelector('.btn-primary');
 
-            if (!date || !start || !end) { alert("Please fill in all fields"); return; }
-
-            // Calculate Hours
-            const s = new Date(`1970-01-01T${start}Z`);
-            const e = new Date(`1970-01-01T${end}Z`);
-            let diff = (e - s) / 36e5; 
-            
-            if (diff < 0) { alert("End time cannot be before start time"); return; }
-            if (isNaN(diff)) { alert("Invalid time format"); return; }
-            
-            const entry = { id: Date.now(), date, start, end, hours: parseFloat(diff.toFixed(2)) };
-
-            // Save to Local Storage
-            const key = currentUser + "_data";
-            let entries = JSON.parse(localStorage.getItem(key)) || [];
-            entries.push(entry);
-            localStorage.setItem(key, JSON.stringify(entries));
-
-            // Force update month filter to the date you just entered
-            document.getElementById('monthFilter').value = date.slice(0, 7);
-            
-            renderTable();
-        } catch (error) {
-            alert("Error adding entry: " + error.message);
+        if(!date || !start || !end) {
+            status.innerText = "❌ Please fill all fields";
+            status.style.color = "red";
+            return;
         }
-    }
 
-    function renderTable() {
-        try {
-            const key = currentUser + "_data";
-            const entries = JSON.parse(localStorage.getItem(key)) || [];
-            const filterMonth = document.getElementById('monthFilter').value;
-            const tbody = document.getElementById('tableBody');
-            
-            // Safety check: if filter is empty, default to this month
-            let targetMonth = filterMonth;
-            if(!targetMonth) {
-                targetMonth = new Date().toISOString().slice(0, 7);
-            }
-
-            // Filter
-            const filtered = entries.filter(e => e.date && e.date.startsWith(targetMonth));
-            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            tbody.innerHTML = "";
-            let total = 0;
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:20px; color:#999;'>No records for selected month</td></tr>";
-            }
-
-            filtered.forEach(e => {
-                total += e.hours;
-                
-                // Safe Date Formatting
-                const d = new Date(e.date);
-                const dateStr = `${d.getUTCDate()} ${d.toLocaleDateString('en-US', { weekday: 'short', timeZone:'UTC' })}`;
-                
-                const row = `
-                    <tr>
-                        <td>
-                            <div style="font-weight:bold;">${dateStr}</div>
-                            <div style="font-size:0.8rem; color:#888;">${formatTime(e.start)} - ${formatTime(e.end)}</div>
-                        </td>
-                        <td style="font-weight:bold; color:#333;">${e.hours}</td>
-                        <td><button class="delete-btn" onclick="deleteEntry(${e.id})">Del</button></td>
-                    </tr>
-                `;
-                tbody.innerHTML += row;
-            });
-
-            document.getElementById('totalHours').innerText = total.toFixed(2);
-        } catch (error) {
-            console.log("Render error: " + error);
+        // Calculate Hours
+        const s = new Date(`1970-01-01T${start}Z`);
+        const e = new Date(`1970-01-01T${end}Z`);
+        let diff = (e - s) / 36e5;
+        if (diff < 0) { 
+            status.innerText = "❌ End time cannot be before Start";
+            status.style.color = "red";
+            return; 
         }
-    }
+        const totalHours = diff.toFixed(2);
 
-    function deleteEntry(id) {
-        if(confirm("Delete this entry?")) {
-            const key = currentUser + "_data";
-            let entries = JSON.parse(localStorage.getItem(key)) || [];
-            entries = entries.filter(e => e.id !== id);
-            localStorage.setItem(key, JSON.stringify(entries));
-            renderTable();
-        }
-    }
+        // UI Loading State
+        btn.disabled = true;
+        btn.style.opacity = "0.6";
+        loader.style.display = "block";
+        status.innerText = "Saving to Google Sheet...";
+        status.style.color = "#666";
 
-    function formatTime(timeStr) {
-        if(!timeStr) return "";
-        const [h, m] = timeStr.split(':');
-        const hour = parseInt(h);
-        const ampm = hour >= 12 ? 'PM' : 'AM';
-        const h12 = hour % 12 || 12;
-        return `${h12}:${m} ${ampm}`;
+        // Send to Google Script
+        const fullUrl = `${SCRIPT_URL}?name=${currentUser}&date=${date}&start=${start}&end=${end}&hours=${totalHours}`;
+
+        fetch(fullUrl, { method: "POST", mode: "no-cors" })
+        .then(() => {
+            loader.style.display = "none";
+            btn.disabled = false;
+            btn.style.opacity = "1";
+            status.innerText = "✅ Saved successfully!";
+            status.style.color = "green";
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            loader.style.display = "none";
+            btn.disabled = false;
+            btn.style.opacity = "1";
+            status.innerText = "❌ Error. Check internet connection.";
+            status.style.color = "red";
+        });
     }
 </script>
 
