@@ -12,62 +12,73 @@
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2910/2910768.png">
 
     <style>
-        /* RESET CSS - Removed the code that blocks touches */
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             max-width: 600px; margin: 0 auto; padding: 1rem; 
             background-color: #f0f2f5;
-            /* Safe area for iPhone Notch */
-            padding-top: env(safe-area-inset-top); 
+            padding-bottom: 80px; /* Space for bottom banner */
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* --- INSTALL BANNER --- */
+        /* --- FIXED BOTTOM BANNER (Won't block top buttons) --- */
         #install-banner {
-            display: none; position: fixed; top: 0; left: 0; width: 100%;
-            background-color: #333; color: white; padding: 10px 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 9999;
-            align-items: center; justify-content: space-between; box-sizing: border-box;
+            display: none; 
+            position: fixed; 
+            bottom: 0; left: 0; width: 100%;
+            background-color: #222; 
+            color: white; 
+            padding: 15px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2); 
+            z-index: 9999;
+            align-items: center; 
+            justify-content: space-between; 
+            box-sizing: border-box;
         }
-        #install-btn { background: #1a73e8; color: white; border: none; padding: 5px 10px; border-radius: 15px; margin-left: 10px; }
-        #close-install { background: none; border: none; color: #aaa; font-size: 1.5rem; margin-left: 10px; }
-        
-        /* --- APP STYLES --- */
-        #login-screen { display: flex; flex-direction: column; height: 80vh; justify-content: center; align-items: center; }
-        .user-card { background: white; padding: 2rem; border-radius: 12px; width: 100%; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        
-        #app-screen { display: none; margin-top: 40px; }
+        #install-btn { background: #1a73e8; color: white; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; margin-left: 10px; }
+        #close-install { background: none; border: none; color: #aaa; font-size: 1.5rem; margin-left: 15px; padding: 0 10px; }
+
+        /* --- LOGIN SCREEN --- */
+        #login-screen { 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 80vh; 
+            justify-content: center; 
+            align-items: center; 
+            position: relative;
+            z-index: 1; /* Ensures buttons are clickable */
+        }
+        .user-card { 
+            background: white; 
+            padding: 2rem; 
+            border-radius: 12px; 
+            width: 100%; 
+            text-align: center; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+        }
+
+        /* --- APP SCREEN --- */
+        #app-screen { display: none; }
         .container { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         
         .input-group { margin-bottom: 1rem; }
         label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #444; }
-        input { width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; -webkit-appearance: none; }
+        input { width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         
-        button { width: 100%; padding: 1rem; margin-top: 10px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; }
-        .btn-primary { background-color: #1a73e8; color: white; }
-        .btn-user { background: white; border: 2px solid #eee; color: #333; margin-bottom: 10px; touch-action: manipulation; }
+        button { cursor: pointer; }
+        .btn-primary { width: 100%; padding: 1rem; margin-top: 10px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; background-color: #1a73e8; color: white; }
+        .btn-user { width: 100%; padding: 1rem; margin-bottom: 10px; border: 2px solid #eee; background: white; border-radius: 8px; font-size: 1rem; color: #333; position: relative; z-index: 10; }
         
-        /* Debug Console Style */
-        #debug-console { 
-            margin-top: 30px; background: #000; color: #0f0; 
-            padding: 10px; font-family: monospace; font-size: 12px; 
-            border-radius: 8px; display: none; 
-        }
+        .total-card { background: linear-gradient(135deg, #1a73e8, #0d47a1); color: white; padding: 1.5rem; border-radius: 12px; text-align: center; margin-bottom: 1.5rem; }
     </style>
 </head>
 <body>
-
-    <div id="install-banner">
-        <div id="msg-text" style="flex:1; font-size: 0.9rem;">Install App for better experience</div>
-        <button id="install-btn">Install</button>
-        <button id="close-install" onclick="this.parentElement.style.display='none'">×</button>
-    </div>
 
     <div id="login-screen">
         <div class="user-card">
             <h2 style="color: #1a73e8;">Work Tracker</h2>
             <p>Select User:</p>
-            <button class="btn-user" onclick="handleLogin('Darsh')">👤 Darsh</button>
-            <button class="btn-user" onclick="handleLogin('Kamal')">👤 Kamal</button>
+            <button class="btn-user" onclick="login('Darsh')">👤 Darsh</button>
+            <button class="btn-user" onclick="login('Kamal')">👤 Kamal</button>
         </div>
     </div>
 
@@ -78,7 +89,7 @@
                 <small onclick="location.reload()" style="color:red;">Logout</small>
             </div>
 
-            <div style="background:#1a73e8; color:white; padding:20px; border-radius:12px; text-align:center; margin-bottom:20px;">
+            <div class="total-card">
                 <div>TOTAL HOURS</div>
                 <div id="totalDisplay" style="font-size:2.5rem; font-weight:bold;">...</div>
             </div>
@@ -94,45 +105,29 @@
         </div>
     </div>
 
-    <div id="debug-console"><strong>DEBUG LOG:</strong><br></div>
+    <div id="install-banner">
+        <div id="msg-text" style="flex:1; font-size: 0.9rem;">Install App for easier access</div>
+        <button id="install-btn">Install</button>
+        <button id="close-install" onclick="this.parentElement.style.display='none'">×</button>
+    </div>
 
 <script>
-    // --- 1. DEBUGGER (Captures phone errors) ---
-    function logError(msg) {
-        const consoleBox = document.getElementById('debug-console');
-        consoleBox.style.display = 'block';
-        consoleBox.innerHTML += `> ${msg}<br>`;
-    }
-    window.onerror = function(message, source, lineno, colno, error) {
-        logError(`Error: ${message} at line ${lineno}`);
-    };
-
-    // --- 2. CONFIGURATION ---
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxWV7i1651NukyWFdOLxielbqAfLgWAED31rPIxbZS0yBPMjpIaAYH6p6pLvnBbSBME/exec"; 
     let currentUser = "";
     document.getElementById('dateInput').valueAsDate = new Date();
 
-    // --- 3. APP LOGIC ---
-    function handleLogin(name) {
-        try {
-            currentUser = name;
-            document.getElementById('displayUser').innerText = name;
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('app-screen').style.display = 'block';
-            fetchTotalHours();
-        } catch(e) {
-            logError("Login Failed: " + e.message);
-        }
+    function login(name) {
+        currentUser = name;
+        document.getElementById('displayUser').innerText = name;
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app-screen').style.display = 'block';
+        fetchTotalHours();
     }
 
     function fetchTotalHours() {
-        fetch(`${SCRIPT_URL}?name=${currentUser}`)
-            .then(r => r.text())
-            .then(d => document.getElementById('totalDisplay').innerText = d)
-            .catch(e => {
-                document.getElementById('totalDisplay').innerText = "-";
-                logError("Fetch Error: " + e.message);
-            });
+        fetch(`${SCRIPT_URL}?name=${currentUser}`).then(r => r.text())
+        .then(d => document.getElementById('totalDisplay').innerText = d)
+        .catch(e => document.getElementById('totalDisplay').innerText = "-");
     }
 
     function sendData() {
@@ -147,56 +142,53 @@
         btn.disabled = true;
         status.innerText = "Saving...";
         
-        // Calculate Hours
-        const s = new Date(`1970-01-01T${start}Z`);
-        const e = new Date(`1970-01-01T${end}Z`);
-        const diff = (e - s) / 36e5;
-
+        const diff = (new Date(`1970-01-01T${end}Z`) - new Date(`1970-01-01T${start}Z`)) / 36e5;
         const fullUrl = `${SCRIPT_URL}?name=${currentUser}&date=${date}&start=${start}&end=${end}&hours=${diff.toFixed(2)}`;
 
         fetch(fullUrl, { method: "POST", mode: "no-cors" })
-            .then(() => {
-                status.innerText = "✅ Saved!";
-                status.style.color = "green";
-                btn.disabled = false;
-                setTimeout(fetchTotalHours, 1500);
-            })
-            .catch(err => {
-                status.innerText = "Error";
-                btn.disabled = false;
-                logError("Save Error: " + err.message);
-            });
+        .then(() => {
+            status.innerText = "✅ Saved!";
+            status.style.color = "green";
+            btn.disabled = false;
+            setTimeout(fetchTotalHours, 1500);
+        })
+        .catch(() => {
+            status.innerText = "Error";
+            btn.disabled = false;
+        });
     }
 
-    // --- 4. SIMPLE INSTALL BANNER ---
-    // (Simplified to prevent crashes)
-    const banner = document.getElementById('install-banner');
-    const installBtn = document.getElementById('install-btn');
-    let deferredPrompt;
+    // --- INSTALL BANNER LOGIC ---
+    // Wrapped in try-catch so it NEVER stops the app from working
+    try {
+        const banner = document.getElementById('install-banner');
+        const installBtn = document.getElementById('install-btn');
+        let deferredPrompt;
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        banner.style.display = 'flex';
-    });
+        // Android Logic
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            banner.style.display = 'flex';
+        });
 
-    installBtn.addEventListener('click', () => {
-        if(deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt = null;
-            banner.style.display = 'none';
+        installBtn.addEventListener('click', () => {
+            if(deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt = null;
+                banner.style.display = 'none';
+            }
+        });
+        
+        // iOS Logic
+        const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+        if(isIos && !isStandalone) {
+            banner.style.display = 'flex';
+            installBtn.style.display = 'none';
+            document.getElementById('msg-text').innerText = "Tap Share ⎋ -> Add to Home Screen";
         }
-    });
-    
-    // Check if on iOS to show simple message
-    const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-    if(isIos && !isStandalone) {
-        banner.style.display = 'flex';
-        installBtn.style.display = 'none';
-        document.getElementById('msg-text').innerText = "Tap Share ⎋ -> Add to Home Screen";
-    }
-
+    } catch(e) { console.log(e); }
 </script>
 </body>
 </html>
