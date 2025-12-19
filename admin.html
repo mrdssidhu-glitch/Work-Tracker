@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tracker Admin</title>
+    
+    <link rel="manifest" href="manifest-admin.json">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Admin">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2942/2942813.png">
+
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background-color: #f8f9fa; 
+            margin: 0; padding: 1rem; 
+            padding-bottom: 80px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        h2 { margin: 0; color: #d93025; }
+        .refresh-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+
+        .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .card { 
+            background: white; padding: 15px; border-radius: 12px; 
+            text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .card h3 { margin: 0 0 5px 0; font-size: 0.9rem; color: #666; }
+        .card .number { font-size: 1.8rem; font-weight: bold; color: #333; }
+        .card.blue { border-bottom: 4px solid #1a73e8; }
+        .card.green { border-bottom: 4px solid #34a853; }
+
+        .history-section { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .history-header { background: #eee; padding: 10px 15px; font-weight: bold; color: #444; font-size: 0.9rem; }
+        
+        .history-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 12px 15px; border-bottom: 1px solid #f0f0f0; 
+        }
+        .history-item:last-child { border-bottom: none; }
+        
+        .h-left { display: flex; flex-direction: column; }
+        .h-name { font-weight: bold; font-size: 1rem; }
+        .h-date { font-size: 0.8rem; color: #888; }
+        .h-right { font-weight: bold; color: #d93025; background: #fce8e6; padding: 5px 10px; border-radius: 15px; font-size: 0.9rem; }
+
+        .loader { text-align: center; padding: 20px; color: #888; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h2>Admin Panel 🔒</h2>
+        <button class="refresh-btn" onclick="loadData()">🔄</button>
+    </header>
+
+    <div class="summary-grid">
+        <div class="card blue">
+            <h3>Darsh</h3>
+            <div id="total-darsh" class="number">...</div>
+        </div>
+        <div class="card green">
+            <h3>Kamal</h3>
+            <div id="total-kamal" class="number">...</div>
+        </div>
+    </div>
+
+    <div class="history-section">
+        <div class="history-header">RECENT ENTRIES</div>
+        <div id="history-list">
+            <div class="loader">Loading data...</div>
+        </div>
+    </div>
+
+<script>
+    // ✅ NEW LINK UPDATED HERE
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxWV7i1651NukyWFdOLxielbqAfLgWAED31rPIxbZS0yBPMjpIaAYH6p6pLvnBbSBME/exec";
+
+    loadData();
+
+    function loadData() {
+        document.getElementById('history-list').innerHTML = '<div class="loader">Refreshing...</div>';
+        document.getElementById('total-darsh').innerText = '...';
+        document.getElementById('total-kamal').innerText = '...';
+
+        fetch(`${SCRIPT_URL}?action=history`)
+        .then(response => response.json())
+        .then(data => {
+            renderHistory(data);
+            calculateTotals(data);
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById('history-list').innerHTML = '<div class="loader" style="color:red">Error loading data</div>';
+        });
+    }
+
+    function renderHistory(data) {
+        const list = document.getElementById('history-list');
+        list.innerHTML = ''; 
+
+        if (data.length === 0) {
+            list.innerHTML = '<div class="loader">No records found</div>';
+            return;
+        }
+
+        data.slice(0, 50).forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'history-item';
+            div.innerHTML = `
+                <div class="h-left">
+                    <span class="h-name">${item.name}</span>
+                    <span class="h-date">${item.date} • ${item.start} - ${item.end}</span>
+                </div>
+                <div class="h-right">${parseFloat(item.hours).toFixed(2)} hrs</div>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    function calculateTotals(data) {
+        let darsh = 0;
+        let kamal = 0;
+
+        data.forEach(item => {
+            let h = parseFloat(item.hours) || 0;
+            if (item.name === 'Darsh') darsh += h;
+            if (item.name === 'Kamal') kamal += h;
+        });
+
+        document.getElementById('total-darsh').innerText = darsh.toFixed(2);
+        document.getElementById('total-kamal').innerText = kamal.toFixed(2);
+    }
+</script>
+
+</body>
+</html>
