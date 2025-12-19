@@ -3,48 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Work Tracker Pro</title>
+    <title>Work Tracker</title>
+
+    <link rel="manifest" href="manifest.json">
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Work Tracker">
-    
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#1a73e8">
-
-    <link rel="manifest" href='data:application/manifest+json,{
-        "name": "Work Tracker Pro",
-        "short_name": "Tracker",
-        "start_url": ".",
-        "display": "standalone",
-        "background_color": "#f0f2f5",
-        "theme_color": "#1a73e8",
-        "icons": [{
-            "src": "https://cdn-icons-png.flaticon.com/512/2910/2910768.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        }]
-    }'>
-
+    <meta name="apple-mobile-web-app-title" content="Tracker">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2910/2910768.png">
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2910/2910768.png">
 
     <style>
-        /* Prevent text selection and rubber-banding for app-like feel */
+        /* APP FEEL: Disable text selection and highlight color */
         body { 
-            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            max-width: 600px; 
-            margin: 0 auto; 
-            padding: 1rem; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            max-width: 600px; margin: 0 auto; padding: 1rem; 
             background-color: #f0f2f5;
-            -webkit-user-select: none; /* iOS Safari */
-            user-select: none;
+            -webkit-user-select: none; user-select: none; 
             -webkit-tap-highlight-color: transparent;
-        }
-        
-        /* Adjust for iPhone Notch/Status Bar if needed */
-        @supports (-webkit-touch-callout: none) {
-            body { padding-top: env(safe-area-inset-top); }
+            /* Adjust for safe area (iPhone notch) */
+            padding-top: env(safe-area-inset-top);
         }
 
         /* Login Screen */
@@ -61,23 +38,12 @@
         
         button { width: 100%; padding: 1rem; margin-top: 10px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-primary { background-color: #1a73e8; color: white; }
-        .btn-primary:active { transform: scale(0.98); } /* Click effect */
         .btn-user { background: white; border: 2px solid #eee; color: #333; margin-bottom: 10px; }
-        .btn-user:active { border-color: #1a73e8; background: #e8f0fe; }
 
         /* Total Box Style */
-        .total-card {
-            background: linear-gradient(135deg, #1a73e8, #0d47a1);
-            color: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            text-align: center;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 10px rgba(26, 115, 232, 0.3);
-        }
+        .total-card { background: linear-gradient(135deg, #1a73e8, #0d47a1); color: white; padding: 1.5rem; border-radius: 12px; text-align: center; margin-bottom: 1.5rem; box-shadow: 0 4px 10px rgba(26, 115, 232, 0.3); }
         .total-number { font-size: 2.5rem; font-weight: bold; }
-        .total-label { font-size: 0.9rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px; }
-
+        
         .loader { display: none; margin: 10px auto; border: 4px solid #f3f3f3; border-top: 4px solid #1a73e8; border-radius: 50%; width: 25px; height: 25px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -86,8 +52,7 @@
 
     <div id="login-screen">
         <div class="user-card">
-            <h2 style="color: #1a73e8; margin-top: 0;">Work Tracker</h2>
-            <p style="color: #666; margin-bottom: 20px;">Select User</p>
+            <h2 style="color: #1a73e8;">Work Tracker</h2>
             <button class="btn-user" onclick="login('Darsh')">👤 Darsh</button>
             <button class="btn-user" onclick="login('Kamal')">👤 Kamal</button>
         </div>
@@ -101,37 +66,24 @@
             </div>
 
             <div class="total-card">
-                <div class="total-label">Total Hours Worked</div>
+                <div>TOTAL HOURS</div>
                 <div id="totalDisplay" class="total-number">...</div>
-                <div style="font-size: 0.8rem; margin-top: 5px;">(Calculated from Sheet)</div>
             </div>
 
-            <div class="input-group">
-                <label>Date</label>
-                <input type="date" id="dateInput">
-            </div>
-
+            <div class="input-group"><label>Date</label><input type="date" id="dateInput"></div>
             <div style="display: flex; gap: 10px;">
-                <div class="input-group" style="flex: 1;">
-                    <label>Start Time</label>
-                    <input type="time" id="startTime">
-                </div>
-                <div class="input-group" style="flex: 1;">
-                    <label>End Time</label>
-                    <input type="time" id="endTime">
-                </div>
+                <div class="input-group" style="flex: 1;"><label>Start</label><input type="time" id="startTime"></div>
+                <div class="input-group" style="flex: 1;"><label>End</label><input type="time" id="endTime"></div>
             </div>
 
             <button class="btn-primary" onclick="sendData()">Save & Update 📤</button>
-            
             <div id="loading" class="loader"></div>
-            <p id="statusMsg" style="text-align:center; font-size: 0.9rem; margin-top: 10px; min-height: 20px;"></p>
+            <p id="statusMsg" style="text-align:center; margin-top: 10px;"></p>
         </div>
     </div>
 
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxWV7i1651NukyWFdOLxielbqAfLgWAED31rPIxbZS0yBPMjpIaAYH6p6pLvnBbSBME/exec"; 
-
     let currentUser = "";
     document.getElementById('dateInput').valueAsDate = new Date();
 
@@ -144,17 +96,9 @@
     }
 
     function fetchTotalHours() {
-        const display = document.getElementById('totalDisplay');
-        display.innerText = "...";
-        fetch(`${SCRIPT_URL}?name=${currentUser}`)
-        .then(response => response.text())
-        .then(data => {
-            display.innerText = data; 
-        })
-        .catch(error => {
-            console.error(error);
-            display.innerText = "Error";
-        });
+        fetch(`${SCRIPT_URL}?name=${currentUser}`).then(r => r.text())
+        .then(d => document.getElementById('totalDisplay').innerText = d)
+        .catch(e => document.getElementById('totalDisplay').innerText = "Err");
     }
 
     function sendData() {
@@ -163,54 +107,21 @@
         const end = document.getElementById('endTime').value;
         const status = document.getElementById('statusMsg');
         const loader = document.getElementById('loading');
-        const btn = document.querySelector('.btn-primary');
 
-        if(!date || !start || !end) {
-            status.innerText = "❌ Please fill all fields";
-            status.style.color = "red";
-            return;
-        }
-
-        const s = new Date(`1970-01-01T${start}Z`);
-        const e = new Date(`1970-01-01T${end}Z`);
-        let diff = (e - s) / 36e5;
-        if (diff < 0) { 
-            status.innerText = "❌ End time cannot be before Start";
-            status.style.color = "red";
-            return; 
-        }
-        const totalHours = diff.toFixed(2);
-
-        btn.disabled = true;
-        btn.style.opacity = "0.6";
+        if(!date || !start || !end) { status.innerText = "❌ Fill all fields"; return; }
+        
         loader.style.display = "block";
-        status.innerText = "Saving...";
-        status.style.color = "#666";
-
-        const fullUrl = `${SCRIPT_URL}?name=${currentUser}&date=${date}&start=${start}&end=${end}&hours=${totalHours}`;
+        const diff = (new Date(`1970-01-01T${end}Z`) - new Date(`1970-01-01T${start}Z`)) / 36e5;
+        const fullUrl = `${SCRIPT_URL}?name=${currentUser}&date=${date}&start=${start}&end=${end}&hours=${diff.toFixed(2)}`;
 
         fetch(fullUrl, { method: "POST", mode: "no-cors" })
         .then(() => {
             loader.style.display = "none";
-            btn.disabled = false;
-            btn.style.opacity = "1";
-            status.innerText = "✅ Saved successfully!";
+            status.innerText = "✅ Saved!";
             status.style.color = "green";
-            
-            setTimeout(() => {
-                fetchTotalHours();
-            }, 1500);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            loader.style.display = "none";
-            btn.disabled = false;
-            btn.style.opacity = "1";
-            status.innerText = "❌ Error. Check internet connection.";
-            status.style.color = "red";
+            setTimeout(fetchTotalHours, 1500);
         });
     }
 </script>
-
 </body>
 </html>
